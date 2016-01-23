@@ -1,0 +1,20 @@
+{
+  "name": "zhixian-chat-room",
+  "description": "chat room in zhixian",
+  "version": "0.0.1",
+  "private": true,
+  "author": {
+    "name": "chrX",
+    "email": "1026336374@qq.com"
+  },
+  "dependencies": {
+      "crypto-js":"^3.1.6",
+      "socket.io": "^1.4.4"
+  },
+  "engines": {
+    "node": "5.1.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}

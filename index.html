@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="format-detection" content="telephone=no"/>
+        <meta name="format-detection" content="email=no"/>
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" name="viewport">
+        
+        <title>多人聊天室</title>
+        <link rel="stylesheet" type="text/css" href="./style.css" />
+    </head>
+    <body>
+        <div id="loginbox">
+            <div style="width:260px;margin:200px auto;">
+                请先输入你在聊天室的昵称
+                <br/>
+                <br/>
+                <input type="text" style="width:180px;" placeholder="请输入用户名" id="username" name="username" />
+                <input type="button" id="usernameSubmit" disabled style="width:50px;" value="提交" />
+            </div>
+        </div>
+        
+        <div id="chatbox" style="display:none;" >
+            <div id="chatboxHeader">
+                <span style="text-align:left;margin-left:10px;">Websocket多人聊天室</span>
+                <span style="float:right; margin-right:10px;">
+                    <span id="showusername"></span> |
+                    <a id="logout" href="javascript:;" style="color:#fff;">退出</a>
+               </span>
+            </div>
+            <div id="chatboxMessage" class="message">
+                <div id="onlinecount" style="background:#EFEFF4; font-size:12px; margin-top:10px; margin-left:10px; color:#666;"></div>
+                <section id="systemMessageTpl">
+                    123 加入(退出）了聊天室
+                </section>
+            </div>
+            <div id="chatboxInput">
+                 <input type="text" maxlength="140" placeholder="请输入聊天内容，按Ctrl提交" id="content" name="content">
+                 <button type="button" id="mjr_send">提交</button>
+            </div>
+        </div>
+        <script id="socket_io_js" src="/socket.io/socket.io.js"></script>
+        <script id="client_js" src="./client.js"></script>
+        <script>
+            var usernameSubmitE = document.getElementById("usernameSubmit");
+            var count = 0;
+            var scriptIds = ["socket_io_js", "client_js"];
+            var scriptEs = scriptIds.map(function(value){
+                return document.getElementById(value);
+            });
+            var onScriptLoad = function(e){
+                var scriptId = e.target.id;
+                var index = scriptIds.indexOf(scriptId);
+                if(index != -1){
+                   scriptIds[index] = scriptIds[scriptIds.length-1];
+                   scriptIds.length = scriptIds.length -1;
+                }
+                if(scriptIds.length == 0){
+                    clientMain(io);
+                    usernameSubmitE.disabled = false;
+                }
+            }
+
+            scriptEs.forEach(function(value){
+                value = onScriptLoad;
+            });
+            
+            usernameSubmitE.disabled = false;
+        </script>
+    </body>
+</html>
