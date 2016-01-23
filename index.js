@@ -2,7 +2,8 @@ var app = require('http').createServer(handler)
 var io = require('socket.io')(app);
 var fs = require('fs');
 
-app.listen(80);
+//app.listen(80);
+app.listen(process.env.PORT || 5050)
 console.log("ok")
 
 function handler (req, res) {

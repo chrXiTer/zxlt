@@ -46,7 +46,7 @@
     }
     
     function getSocketHandler(userid, username, UIHander) {
-        var socket = io.connect('ws://localhost:80'); //连接websocket后端服务器
+        var socket = io.connect('ws://localhost:5050'); //连接websocket后端服务器
         socket.emit('login', {userid:userid, username:username});//告诉服务器端有用户登录
         socket.on('login', function(obj){//监听新用户登录
             var systemMsgContent = obj.user.username + "加入了聊天室";
