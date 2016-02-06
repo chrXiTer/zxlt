@@ -1,6 +1,7 @@
 var app = require('http').createServer(handler)
 var io = require('socket.io')(app);
 var fs = require('fs');
+var roomHandleFuncMap = require("roomHandleFuncMap");
 
 //app.listen(80);
 app.listen(process.env.PORT || 5050)
@@ -42,11 +43,10 @@ io.on('connection', function(socket){
         io.emit('login', {onlineUsers:onlineUsers, onlineCount:onlineCount, user:obj});//向所有客户端广播用户加入
         console.log(obj.username+'加入了聊天室');
     });
-     
     
     socket.on('disconnect', function(){//监听用户退出
         if(onlineUsers.hasOwnProperty(socket.name)) {//将退出的用户从在线列表中删除
-            var obj = {userid:socket.name, username:onlineUsers[socket.name]};
+            let obj = {userid:socket.name, username:onlineUsers[socket.name]};
             delete onlineUsers[socket.name];//删除
             onlineCount--;//在线人数-1
 
@@ -54,26 +54,13 @@ io.on('connection', function(socket){
             console.log(obj.username+'退出了聊天室');
         }
     });
-
-    socket.on('message', function(obj){//监听用户发布聊天内容
-        io.emit('message', obj);//向所有客户端广播发布的消息
-        console.log(obj.username+'说：'+obj.content);
-    });
+    
+    for(let room of roomHandleFuncMap){
+        socket.on(room, function(message){
+            let handleFunc = roomHandleFuncMap[DomainHandleFuncMap];
+            handleFunc(io, message);
+        });
+    }
 
 });
 
-/*
-  var socket = io('http://localhost');
-  socket.on('news', function (data) {
-      var token = data.token;
-      socket.emit('chrX1', { my: 'data' });
-  });
-  
-  
-  io.on('connection', function (socket) {
-  socket.emit('start', { hello: 'welcome', token: '123' });
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
-});
-*/
