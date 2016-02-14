@@ -1,4 +1,4 @@
-;(function (io) {
+;(function () {
     function getUIHander(){
         var screenheight = window.innerHeight ? window.innerHeight : dx.clientHeight;
         var showusernameE = document.getElementById("showusername");
@@ -44,44 +44,46 @@
         }
         return exportResult;
     }
-    
-    function getSocketHandler(userid, username, UIHander) {
-        var socket = io.connect('ws://zxchat.applinzi.com'); //连接websocket后端服务器
-        //var socket = io.connect('ws://localhost:5050'); //连接websocket后端服务器
-        socket.emit('login', {userid:userid, username:username});//告诉服务器端有用户登录
-        socket.on('login', function(obj){//监听新用户登录
-            var systemMsgContent = obj.user.username + "加入了聊天室";
-            UIHander.updataOnlineUsersInfo(obj.onlineUsers);
-            UIHander.showSystemMsg(systemMsgContent); 
-        });
-        socket.on('logout', function(obj){//监听用户退出
-            var systemMsgContent = obj.user.username + "退出了聊天室";
-            UIHander.updataOnlineUsersInfo(obj.onlineUsers);
-            UIHander.showSystemMsg(systemMsgContent); 
-        });   
-        socket.on('message', function(obj){//监听消息发送
-            var isMe = (obj.userid == userid);
-            UIHander.addMsg(obj.username, obj.content, isMe);
-        });
-        return socket;
-    }
-    
-    function getChatObj(username, uiHander){
-        var chatObj = {};
-        chatObj.sendMsg = function(msgContent){
-            var obj = {
-                    userid: chatObj.userid,
-                    username: chatObj.username,
-                    content: msgContent
-                };
-            chatObj.socket.emit('message', obj);
-        },
-        chatObj.logout = function(){
-            chatObj.socket.disconnect();
-        },
-        chatObj.userid = new Date().getTime()+""+Math.floor(Math.random()*899+100);
-        chatObj.username = username;
-        chatObj.socket = getSocketHandler(chatObj.userid, chatObj.username, uiHander);
+
+    function getChatObj(username, uiHander){        
+        //var socket = io.connect('ws://zxchat.applinzi.com'); //连接websocket后端服务器
+        var ws = new WebSocket('ws://localhost:5060'); 
+        var userid = new Date().getTime()+""+Math.floor(Math.random()*899+100);
+        ws.onopen = function(){
+            var enterMsg = JSON.stringify({
+                type:"login",
+                userid:userid, 
+                username:username
+            });
+            ws.send(enterMsg); 
+        }; 
+        ws.onmessage = onmessage = function(evt){
+            var msg = evt.data;
+            var msgObj = JSON.parse(msg);
+            if(msg.type === 'system'){
+                uiHander.showSystemMsg(msgObj.content);
+            }else{
+                ;
+            }
+        }; 
+        ws.onclose = function(evt){console.log('WebSocketClosed!');}; 
+        ws.onerror = function(evt){console.log('WebSocketError!');}; 
+        var chatObj = {
+            userid:     userid, 
+            username:   username,
+            sendMsg:    function(msgContent){
+                            var msgObj = {
+                                    userid: chatObj.userid,
+                                    username: chatObj.username,
+                                    content: msgContent
+                                };
+                            var msgStr = JSON.stringify(msgObj);
+                            ws.send(msgStr);
+                        },
+            logout:     function(){
+                            ws.close();
+                        }
+        }
         return chatObj;
     }
 
@@ -128,4 +130,4 @@
             }
         }
     })();
-})(io);
+})();
