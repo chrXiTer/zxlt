@@ -1,3 +1,5 @@
+"use strict";
+
 function getChatObj(username, uiHander){        
     //var socket = io.connect('ws://zxchat.applinzi.com'); //连接websocket后端服务器
     var ws = new WebSocket('ws://localhost:5050/chat1'); 

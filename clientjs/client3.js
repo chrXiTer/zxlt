@@ -1,3 +1,5 @@
+"use strict";
+
 (function(){
     var chatObj;
     //第一个界面用户提交用户名,进入聊天室

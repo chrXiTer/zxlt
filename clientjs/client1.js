@@ -1,3 +1,5 @@
+"use strict";
+
 function getUIHander(){
     var screenheight = window.innerHeight ? window.innerHeight : dx.clientHeight;
     var showusernameE = document.getElementById("showusername");
