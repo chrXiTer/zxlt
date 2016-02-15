@@ -39,11 +39,13 @@
                  <button type="button" id="mjr_send">提交</button>
             </div>
         </div>
-        <script id="client_js" src="./client.js"></script>
+        <script id="client1_js" src="./clientjs/client1.js"></script>
+        <script id="client2_js" src="./clientjs/client2.js"></script>
+        <script id="client3_js" src="./clientjs/client3.js"></script>
         <script>
             var usernameSubmitE = document.getElementById("usernameSubmit");
             var count = 0;
-            var scriptIds = ["socket_io_js", "client_js"];
+            var scriptIds = ["client_js"];
             var scriptEs = scriptIds.map(function(value){
                 return document.getElementById(value);
             });

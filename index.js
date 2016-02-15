@@ -1,16 +1,17 @@
 "use strict";
 
 
-
-var onlineUsers = new Map();
-var host = 'localhost';
 var port = process.env.PORT || 5050;
-
-
-var app = require('http').createServer(handler);
+var app = require('http').createServer(handler);    
 var fs = require('fs');
 app.listen(port);
 console.log("ok " + port);
+
+var onlineUsers = new Map();
+var WebSocketServer = require('ws').Server;
+var wss = new WebSocketServer({path:"/chat1", server:app});
+wss.on('connection', onconnection);
+
 function handler (req, res) {
     console.log(req.url);
     var contentType = 'text/html';
@@ -32,38 +33,51 @@ function handler (req, res) {
         res.end(data);
     });
 }
-
-var WebSocketServer = require('ws').Server
-    , wss = new WebSocketServer({port:5060});
   
-wss.on('connection', function(ws) {
+function onconnection(ws) {
     console.log('connection');
     onlineUsers.set(ws, null);
+    ws.on('open', function(message){
+        console.log('open: %s', message);
+    })
+    
     ws.on('message', function(message) {
         console.log('received: %s', message);
         var msgObj = JSON.parse(message);
-        
         if(msgObj.type === "login"){
-            onlineUsers.set(ws, {userid:msgObj.userid, username:msgObj.username});
-            var replyObj = {type:"system", content:"ok"};
-            var replyStr = JSON.stringify(replyObj);
-            ws.send(replyStr);
+            var newUser = {userid:msgObj.userid, username:msgObj.username};
+            onlineUsers.set(ws, newUser);
+            //var allUsers =  [...onlineUsers.values()];
+            var allUsers = [];
+            for(let u of onlineUsers.values()){
+                allUsers.push(u);
+            }
+            onlineUsers.forEach(function (value, key) {
+                var replyObj={type:"refreshUserList", newUser:newUser,content:allUsers};
+                    var replyStr = JSON.stringify(replyObj);
+                    key.send(replyStr);
+            });
         }if(msgObj.type === "chat"){
             var userOfMessageFrom = onlineUsers.get(ws);
             onlineUsers.forEach(function (value, key) {
                 var replyObj;
                 if(key != ws){
-                    replyObj={type:chatMessage, from:userOfMessageFrom.userid, content:msgObj.content};
+                    replyObj={type:"chatMessage", from:userOfMessageFrom.userid, content:msgObj.content};
+                    var replyStr = JSON.stringify(replyObj);
+                    key.send(replyStr);
                 }else{
-                    replyObj={type:"system", content:"ok"};
+                    ;//replyObj={type:"system", content:"ok"};
                 }
-                var replyStr = JSON.stringify(replyObj);
-                key.send(replyStr);
+
             })
         }
     });
-    ws.send('something');
-});
+    
+    ws.on('close', function(code, message){
+        console.log('close');
+        onlineUsers.delete(ws);
+    })
+}
 
 
 
