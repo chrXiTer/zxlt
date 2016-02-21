@@ -3,7 +3,7 @@
 function getChatObj(chatRoomName, username, uiHander){        
     //var socket = io.connect('ws://zxchat.applinzi.com'); //连接websocket后端服务器
     //var ws = new WebSocket('ws://localhost:5050/' + chatRoomName); 
-    var ws = new WebSocket('ws://zxlt.applinzi.com' + chatRoomName); 
+    var ws = new WebSocket('ws://zxlt.applinzi.com/' + chatRoomName); 
     var userid = new Date().getTime()+""+Math.floor(Math.random()*899+100);
     var allOnlineUsers = [];
     var allOnLineUsersObj = {};
