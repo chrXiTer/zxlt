@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="format-detection" content="telephone=no"/>
+        <meta name="format-detection" content="email=no"/>
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" name="viewport">
+        <title>知县聊天</title>
+        <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    </head>
+    <body>
+        <ul id="chatRoomSelect">
+            <li id="sampleChatRoom">
+                <h2>样本聊天室</h2>
+                <p>请先输入你在聊天室的昵称:</p>
+                <input type="text" style="width:180px;" placeholder="请输入用户名" />
+                <br />
+                <button>进入</button>
+            </li>
+            <li id="createChatRoom">
+                <h2>创建新的聊天室</h2>
+                <p>请先输入你在聊天室的昵称:</p>
+                <input type="text" style="width:180px;" placeholder="请输入聊天室名" />
+                <br />
+                <button>创建+</button>
+            </li>
+        </ul>
+        
+        <div id="chatbox" style="display:none;" >
+            <div id="chatboxHeader">
+                <span style="text-align:left;margin-left:10px;">聊天室 - <span id="chatRoomName"></span></span>
+                <span style="float:right; margin-right:10px;">
+                    <span id="showusername"></span> |
+                    <a id="logout" href="javascript:;">退出</a>
+               </span>
+            </div>
+            <div id="chatboxMessage">
+                <div id="onlinecount"></div>
+                <div style="display:none">
+                    <section id="systemMessageTpl" class="systemMessage">
+                        123 加入(退出）了聊天室
+                    </section>
+                    <section id="messageTpl">
+                        <div class="user">userName</div>
+                        <div class="message">message content</div>
+                    </section>
+                </div>
+            </div>
+            <div id="chatboxInput">
+                <button id="mjr_send">提交</button>
+                <div>
+                    <input id="content" type="text" maxlength="140" placeholder="请输入聊天内容，按'回车键'提交">
+                </div>
+            </div>
+        </div>
+        <script src="./clientjs/chatRoomHandle.js"></script>
+        <script src="./clientjs/chatUIHandle.js"></script>
+        <script src="./clientjs/chatHandle.js"></script>
+
+        <script>
+        </script>
+    </body>
+</html>

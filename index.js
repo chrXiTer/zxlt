@@ -3,26 +3,45 @@
 var port = process.env.PORT || 5050;
 var app = require('http').createServer(handler);    
 var fs = require('fs');
+var WebSocketServer = require('ws').Server;
+
 app.listen(port);
 console.log("ok " + port);
+addAChatRoom('%E6%A0%B7%E6%9C%AC%E8%81%8A%E5%A4%A9%E5%AE%A4');
 
-var onlineUsers = new Map();
-var WebSocketServer = require('ws').Server;
-var wss = new WebSocketServer({path:"/chat1", server:app});
-wss.on('connection', onconnection);
+function addAChatRoom(CharRoomName){
+    var onlineUsers = new Map();
+    var wss = new WebSocketServer({path:"/" + CharRoomName, server:app});
+    wss.on('connection', function(ws){
+        onconnection(ws, onlineUsers);
+    });
+}
 
 function handler (req, res) {
     console.log(req.url);
-    var contentType = 'text/html';
-    if(req.url.indexOf('.css') != -1){
+    var contentType;
+    if(req.url.search(/.css$/) != -1){
         contentType ="text/css";
-    }else if(req.url.indexOf('.js') != -1){
+    }else if(req.url.search(/.js$/) != -1){
         contentType ="text/javascript";
+    }else if(req.url.search(/(.html?$|\/)/) != -1){
+        contentType = 'text/html';
+    }else{
+        contentType = 'text/json';
     }
+    
     var filePath = __dirname + req.url;
-    if(req.url.charAt(req.url.length - 1) ==  "/"){
-        filePath = filePath + 'index.html';
+    if(req.url.search(/^\/$/) != -1){
+        filePath = filePath + 'html/index.html';
+    }else if(req.url.search(/^\/addChatRoom\//) != -1){
+        var newChatRoomName = req.url.replace(/^\/addChatRoom\//, "")
+        console.log("addAChatRoom " + newChatRoomName);
+        addAChatRoom(newChatRoomName);
+        res.writeHead(200, {'Content-Type': contentType});
+        res.end("ok");
+        return;
     }
+    
     fs.readFile(filePath, function (err, data) {
         if (err) {
             res.writeHead(500);
@@ -32,8 +51,26 @@ function handler (req, res) {
         res.end(data);
     });
 }
-  
-function onconnection(ws) {
+
+function broadcastUserEnterOrLeave(user, onlineUsers, enterOrLeave){
+    //var allUsers =  [...onlineUsers.values()];
+    var allOnlineUsers = [];
+    for(let u of onlineUsers.values()){
+        allOnlineUsers.push(u);
+    }
+    var replyObj;
+    if(enterOrLeave === "enter"){
+        replyObj={type:"userEnter", user:user,allOnlineUsers:allOnlineUsers};
+    }else{ //enterOrLeave === "leave"
+        replyObj={type:"userLeave", user:user,allOnlineUsers:allOnlineUsers};
+    }
+    var replyStr = JSON.stringify(replyObj);
+    onlineUsers.forEach(function (value, key) {
+       key.send(replyStr);
+    });
+}
+
+function onconnection(ws, onlineUsers) {
     console.log('connection');
     onlineUsers.set(ws, null);
     ws.on('open', function(message){
@@ -46,17 +83,8 @@ function onconnection(ws) {
         if(msgObj.type === "login"){
             var newUser = {userid:msgObj.userid, username:msgObj.username};
             onlineUsers.set(ws, newUser);
-            //var allUsers =  [...onlineUsers.values()];
-            var allUsers = [];
-            for(let u of onlineUsers.values()){
-                allUsers.push(u);
-            }
-            onlineUsers.forEach(function (value, key) {
-                var replyObj={type:"refreshUserList", newUser:newUser,content:allUsers};
-                    var replyStr = JSON.stringify(replyObj);
-                    key.send(replyStr);
-            });
-        }if(msgObj.type === "chat"){
+            broadcastUserEnterOrLeave(newUser, onlineUsers, "enter");
+        }else if(msgObj.type === "chat"){
             var userOfMessageFrom = onlineUsers.get(ws);
             onlineUsers.forEach(function (value, key) {
                 var replyObj;
@@ -67,44 +95,18 @@ function onconnection(ws) {
                 }else{
                     ;//replyObj={type:"system", content:"ok"};
                 }
-
-            })
+            });
         }
     });
     
     ws.on('close', function(code, message){
-        console.log('close');
-        onlineUsers.delete(ws);
+        var leavedUser = onlineUsers.get(ws);
+        console.log(leavedUser.username +  ' close');
+        onlineUsers.delete(ws);  //此时已经不能向ws发送消息，所以需要在广播离开消息前将ws从onlineUsers中删掉
+        broadcastUserEnterOrLeave(leavedUser, onlineUsers, "leave");
+        
     })
 }
-
-
-
-/*
-io.on('connection', function(socket){
-    console.log('a user connected');
-    socket.send('rrr');
-
-    socket.on('disconnect', function(){//监听用户退出
-        if(onlineUsers.has(socket.name)) {//将退出的用户从在线列表中删除
-            let obj = {userid:socket.name, username:onlineUsers[socket.name]};
-            onlineUsers.delete(socket.name);//删除
-
-            io.emit('message', {onlineUsers:onlineUsers, user:obj});//向所有客户端广播用户退出
-            console.log(obj.username+'退出了聊天室');
-        }
-    });
-    
-    socket.on('message', function(message){
-        console.log('Reserv message ');
-        console.log(message);
-        socket.send("12345");//向所有客户端广播用户加入
-        io.send("67890");//向所有客户端广播用户加入   
-        socket.emit("ddd", '123');
-        io.emit('eee', '456');
-    });
-});
-*/
 
 
 

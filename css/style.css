@@ -1,0 +1,132 @@
+ @media (max-device-width: 480px) and (orientation: portrait) {
+    width:320px;
+}
+
+ul {
+  margin:0;
+  list-style:none;
+}
+
+header {
+  font-weight:700;
+  color:#4d4d4d;
+}
+
+#chatRoomSelect li{    
+    display:inline-flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items: center;
+    
+    width:300px;
+    height:300px;
+    background:#eee;
+    list-style:none;
+    margin:20px;
+}
+
+#chatbox{
+    margin: 0 auto;
+    max-width: 600px;
+}
+
+#chatboxHeader{
+    background:#888;
+    height: 28px; 
+    width: 100%;
+    font-size:12px;
+    line-height: 26px;
+    color:#fff;
+}
+
+#chatboxMessage{
+    overflow:hidden; /* 触发BFC */
+    min-height: 390px;
+    width:100%;
+    background-color: #f6f6f6;
+}
+
+#onlinecount{
+    background:#EFEFF4; 
+    font-size:12px; 
+    margin-top:10px; 
+    margin-left:10px; 
+    color:#666;
+}
+
+.systemMessage{
+    color:#999;
+}
+
+section { /* 触发BFC， 以防止内部元素都float后，大小为0的情况*/
+    overflow:hidden;
+    margin:10px;
+}
+
+section .message{
+    max-width: 300px;
+    background-color: #40e040;
+    padding:2px;
+    border-radius:3px;
+    color:#333;
+    word-break:break-all;
+}
+
+section .user{
+    padding:2px;
+    color:#333
+}
+
+section.user div{
+    float:right;
+}
+
+section.service div{
+    float:left;
+}
+
+#chatboxInput div{
+    overflow: hidden;  /* 触发BFC */
+    max-width: 600px;
+}
+#chatboxInput div input{
+    height: 30px;
+    width:100%;
+}
+
+#chatboxInput button{
+    width: 50px;
+    height: 30px;
+    float:right;
+}
+
+
+
+*, *:before, *:after {
+  box-sizing:border-box;
+  text-size-adjust:none;
+  tap-highlight-color:rgba(0, 0, 0, 0);
+}
+
+
+input, textarea, select {
+  font-family:inherit;
+  font-size:inherit;
+  font-weight:inherit;
+}
+
+input:password {
+  ime-mode:disabled;
+}
+
+*:focus {
+  outline:none;
+}
+
+
+
+
+
+
+            
+            
